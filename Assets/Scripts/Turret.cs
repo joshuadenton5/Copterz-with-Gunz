@@ -11,17 +11,17 @@ public class Turret : MonoBehaviour
     {
         StartCoroutine(Fire());
     }
-
+   
     IEnumerator Fire()
     {
-        while (!PlayerController.dead)
+        while (PlayerController.SharedInstance.gameObject.activeInHierarchy)
         {
             fire = Input.GetButtonDown("Fire2");
             if (fire)
             {
                 FireBullet();
             }
-            yield return new WaitForSeconds(.01f);
+            yield return new WaitForSeconds(.001f);
         }
     }
 
@@ -39,6 +39,6 @@ public class Turret : MonoBehaviour
     void AddForce(GameObject obj)
     {
         Rigidbody2D rb = obj.GetComponent<Rigidbody2D>();
-        rb.AddForce(Vector2.right *10000);
+        rb.AddForce(Vector2.right * power);
     }
 }

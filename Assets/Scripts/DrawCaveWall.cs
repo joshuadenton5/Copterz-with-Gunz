@@ -6,11 +6,13 @@ public class DrawCaveWall : MonoBehaviour
 {
     [SerializeField] private Transform startPositionTop;
     [SerializeField] private Transform startPositionBottom;
+    private PlayerController playerController;
     [Range(0, 10)][SerializeField] private int caveLimits = 6;
     [SerializeField] private int initalLineNum;
 
     private void Start()
     {
+        playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
         BeginDraw();
     }
 
@@ -39,16 +41,17 @@ public class DrawCaveWall : MonoBehaviour
 
     public IEnumerator DrawRandomWall(Transform startPos)
     {
-        float wait = .06f; //need to create relationship with player speed....
+        float wait = 0;//need to create relationship with player speed....
         Vector3 start = startPos.position;
         Transform current = startPos;
-        while (!PlayerController.dead) //player is not dead 
+        while (PlayerController.SharedInstance.gameObject.activeInHierarchy) //player is not dead 
         {
             GameObject pixel = PoolManager.SharedInstance.GetFromPool(0);//getting from pool 
             if (!(pixel is null)) 
             {
                 int r = 0;
                 float _scaleFactor = pixel.transform.localScale.x;
+                wait = _scaleFactor / playerController.PlayerSpeed();
                 if (current.position.y >= start.y + caveLimits)
                 {
                     r = (int)-_scaleFactor;

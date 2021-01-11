@@ -5,22 +5,23 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D rb2D;
-    private Turret turret;
-    [SerializeField] private int speed;
+    [SerializeField] private GameController _gameController;
+
+    [SerializeField] private float speed;
     [SerializeField] private float force;
     [SerializeField] private float gravScale = 12f;
-    private bool upwardsForce, fire;
-    public static bool dead;
+    private bool upwardsForce;
+
+    public static PlayerController SharedInstance;
 
     void Start()
     {
-
-        turret = GetComponentInChildren<Turret>();
+        SharedInstance = this;
         rb2D = GetComponent<Rigidbody2D>();
         rb2D.gravityScale = gravScale;
     }
 
-    public int PlayerSpeed() { return speed; }       
+    public float PlayerSpeed() { float _speed = speed; return _speed; }  //only getting     
 
     void FixedUpdate()
     {
@@ -29,30 +30,12 @@ public class PlayerController : MonoBehaviour
         {
             rb2D.AddForce(new Vector2(0, force));           
         }
-        
-        /*Vector2 newVel = rb2D.velocity;
-        newVel.x = speed;
-        rb2D.velocity = newVel;*/
-
         rb2D.position = Vector2.Lerp(transform.position, transform.position + Vector3.right, Time.fixedDeltaTime * speed);
     }   
 
-    void OnDeath()
+    public void OnDeath()
     {
         Debug.Log("Dead");
-        dead = true;
         gameObject.SetActive(false);
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.CompareTag("Cave"))
-        {
-            OnDeath();
-        }
-        else if (collision.CompareTag("Block"))
-        {
-            OnDeath();
-        }
     }
 }
