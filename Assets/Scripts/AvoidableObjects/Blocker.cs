@@ -24,9 +24,39 @@ public class Blocker : AvoidableObject
 
     public override void BulletInteraction(Collider2D bullet)
     {
-        transform.parent.gameObject.SetActive(false); 
         bullet.gameObject.SetActive(false);
         _gameController.UpdateScoreVal(ValueFromKill);//adding to score
-        _gameController.ProcessTextElement(transform, ValueFromKill);
+        ProcessTextElement(transform, ValueFromKill);
+        //transform.parent.gameObject.SetActive(false);
+
+        Transform _parent = transform.parent;
+        PlayTest(_parent);
+    }
+
+    public void ProcessTextElement(Transform t, float val)
+    {
+        GameObject _scoreCanvas = GetCanvasFromPool(t);
+        UnityEngine.UI.Text text = _scoreCanvas?.GetComponentInChildren<UnityEngine.UI.Text>();
+        text.text = val.ToString();
+        UIManager.FadeTextPopUp(text, .5f);
+    }
+
+    GameObject GetCanvasFromPool(Transform t)
+    {
+        GameObject scoreCanvas = PoolManager.SharedInstance.GetFromPool(3);
+        scoreCanvas.transform.position = t.position;
+        scoreCanvas.SetActive(true);
+        return scoreCanvas;
+    }
+
+    void PlayTest(Transform parent)
+    {
+        Transform[] children = parent.GetComponentsInChildren<Transform>();
+        foreach (Transform t in children)
+        {
+            Rigidbody2D rb = t.gameObject.AddComponent<Rigidbody2D>();
+            rb.gravityScale = 12;
+        }
+
     }
 }

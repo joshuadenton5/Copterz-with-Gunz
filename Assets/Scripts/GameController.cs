@@ -30,30 +30,9 @@ public class GameController : MonoBehaviour
     private void InitialiseUI()
     {
         OnScoreChanged?.Invoke(newText: _currentGameStats.Score.ToString());
-    }
+    }  
 
-    public void ProcessTextElement(Transform t, float val)
-    {
-        GameObject scoreCanvas = PoolManager.SharedInstance.GetFromPool(3);
-        scoreCanvas.transform.position = t.position;
-        scoreCanvas.SetActive(true);
-
-        UnityEngine.UI.Text text = scoreCanvas.GetComponentInChildren<UnityEngine.UI.Text>();
-        text.text = val.ToString();
-        StartCoroutine(FadeTextOut(text, .5f));
-    }
-
-    public IEnumerator FadeTextOut(UnityEngine.UI.Text text, float dur)
-    {
-        text.color = new Color(text.color.r, text.color.g, text.color.b, 1);
-        while(text.color.a > 0f)
-        {
-            text.color = new Color(text.color.r, text.color.g, text.color.b, text.color.a - Time.deltaTime / dur);
-            yield return null;
-        }
-    }
-
-    public IEnumerator KeepScore() //score increments while the player has not died
+    public IEnumerator KeepScore() //score increments while the player is alive
     {
         while (PlayerController.SharedInstance.gameObject.activeInHierarchy)
         {

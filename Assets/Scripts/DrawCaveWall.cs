@@ -49,14 +49,14 @@ public class DrawCaveWall : MonoBehaviour
             GameObject pixel = PoolManager.SharedInstance.GetFromPool(0);//getting from pool 
             if (!(pixel is null)) 
             {
-                int r = 0;
                 float _scaleFactor = pixel.transform.localScale.x;
-                wait = _scaleFactor / playerController.PlayerSpeed();
+                wait = _scaleFactor / playerController.PlayerSpeed() - 0.001f;
+                int r;
                 if (current.position.y >= start.y + caveLimits)
                 {
                     r = (int)-_scaleFactor;
                 }
-                else if(current.position.y <= start.y - caveLimits)
+                else if (current.position.y <= start.y - caveLimits)
                 {
                     r = (int)_scaleFactor;
                 }
