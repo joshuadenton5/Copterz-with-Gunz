@@ -29,7 +29,7 @@ public class DrawCaveWall : MonoBehaviour
         Transform current = startPos;
         for (int i = 0; i < amount; i++)
         {
-            GameObject pixel = PoolManager.SharedInstance.GetFromPool(0);
+            GameObject pixel = PoolManager._instance.GetFromPool(0);
             Vector3 pos = new Vector3(current.position.x + pixel.transform.localScale.x, current.position.y, current.position.z);
             pixel.transform.position = pos;
             pixel.SetActive(true);
@@ -44,9 +44,9 @@ public class DrawCaveWall : MonoBehaviour
         float wait = 0;//need to create relationship with player speed....
         Vector3 start = startPos.position;
         Transform current = startPos;
-        while (PlayerController.SharedInstance.gameObject.activeInHierarchy) //player is not dead 
+        while (PlayerController._instance.gameObject.activeInHierarchy) //player is not dead 
         {
-            GameObject pixel = PoolManager.SharedInstance.GetFromPool(0);//getting from pool 
+            GameObject pixel = PoolManager._instance.GetFromPool(0);//getting from pool 
             if (!(pixel is null)) 
             {
                 float _scaleFactor = pixel.transform.localScale.x;

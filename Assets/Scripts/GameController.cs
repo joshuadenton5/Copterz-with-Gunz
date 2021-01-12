@@ -8,7 +8,7 @@ public class GameController : MonoBehaviour
     [SerializeField] private Transform player;
     [SerializeField] private Transform backPad;
 
-    [SerializeField] private GameObject copterPoop, blocker;
+    [SerializeField] private GameObject copterPoop;
 
     private GameStatistics _currentGameStats;
 
@@ -34,7 +34,7 @@ public class GameController : MonoBehaviour
 
     public IEnumerator KeepScore() //score increments while the player is alive
     {
-        while (PlayerController.SharedInstance.gameObject.activeInHierarchy)
+        while (PlayerController._instance.gameObject.activeInHierarchy)
         {
             UpdateScoreVal(.5f);
             yield return null;
@@ -49,7 +49,7 @@ public class GameController : MonoBehaviour
 
     IEnumerator BlockerCounter()
     {
-        while (PlayerController.SharedInstance.gameObject.activeInHierarchy)
+        while (PlayerController._instance.gameObject.activeInHierarchy)
         {
             float timer = Random.Range(2, 6);
             while(timer > 0)
@@ -63,9 +63,9 @@ public class GameController : MonoBehaviour
 
     public void RandomlySpawnBlocker()
     {
-        int rand = Random.Range(-35, 35);
+        int rand = Random.Range(-30, 30);
         Vector3 position = new Vector3(player.transform.position.x + 200, rand, player.transform.position.z);
-        GameObject blocker = PoolManager.SharedInstance.GetFromPool(1);
+        GameObject blocker = PoolManager._instance.GetFromPool(1);
         blocker.transform.position = position;
         blocker.SetActive(true);
     }
@@ -74,7 +74,7 @@ public class GameController : MonoBehaviour
     {
         float distanceToPlayerX = toFollow.position.x - player.position.x;
         float distanceTpPlayerY = toFollow.position.y - player.position.y;
-        while (PlayerController.SharedInstance.gameObject.activeInHierarchy)
+        while (PlayerController._instance.gameObject.activeInHierarchy)
         {
             if (player.gameObject.activeInHierarchy)
             {
@@ -93,7 +93,7 @@ public class GameController : MonoBehaviour
     public IEnumerator ExhaustFlumes(Transform _player)
     {
         Transform point = _player.Find("PoopPoint");
-        while (PlayerController.SharedInstance.gameObject.activeInHierarchy)
+        while (PlayerController._instance.gameObject.activeInHierarchy)
         {
             Instantiate(copterPoop, point.transform.position, copterPoop.transform.rotation);
             yield return null;
@@ -104,7 +104,7 @@ public class GameController : MonoBehaviour
     {
         Vector3 difference = backPad.position - player.position;
         float followSharpness = 0.1f;
-        while (PlayerController.SharedInstance.gameObject.activeInHierarchy)
+        while (PlayerController._instance.gameObject.activeInHierarchy)
         {
             Vector3 targetPos = player.position + difference;
             targetPos.y = backPad.position.y;

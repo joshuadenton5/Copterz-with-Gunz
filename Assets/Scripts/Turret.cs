@@ -14,7 +14,7 @@ public class Turret : MonoBehaviour
    
     IEnumerator Fire()
     {
-        while (PlayerController.SharedInstance.gameObject.activeInHierarchy)
+        while (PlayerController._instance.gameObject.activeInHierarchy)
         {
             fire = Input.GetButtonDown("Fire2");
             if (fire)
@@ -27,7 +27,7 @@ public class Turret : MonoBehaviour
 
     public void FireBullet()
     {
-        GameObject bullet = PoolManager.SharedInstance.GetFromPool(2);
+        GameObject bullet = PoolManager._instance.GetFromPool(2);
         if (!(bullet is null))
         {
             bullet.transform.position = transform.position;

@@ -5,18 +5,19 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D rb2D;
-    [SerializeField] private GameController _gameController;
 
     [SerializeField] private float speed;
     [SerializeField] private float force;
     [SerializeField] private float gravScale = 12f;
     private bool upwardsForce;
 
-    public static PlayerController SharedInstance;
-
+    public static PlayerController _instance;
+    private void Awake()
+    {
+        _instance = this;
+    }
     void Start()
     {
-        SharedInstance = this;
         rb2D = GetComponent<Rigidbody2D>();
         rb2D.gravityScale = gravScale;
     }

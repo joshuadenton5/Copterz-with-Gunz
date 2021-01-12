@@ -27,10 +27,9 @@ public class Blocker : AvoidableObject
         bullet.gameObject.SetActive(false);
         _gameController.UpdateScoreVal(ValueFromKill);//adding to score
         ProcessTextElement(transform, ValueFromKill);
-        //transform.parent.gameObject.SetActive(false);
 
-        Transform _parent = transform.parent;
-        PlayTest(_parent);
+        GetPostBlocker(transform);
+        transform.parent.gameObject.SetActive(false);
     }
 
     public void ProcessTextElement(Transform t, float val)
@@ -43,20 +42,17 @@ public class Blocker : AvoidableObject
 
     GameObject GetCanvasFromPool(Transform t)
     {
-        GameObject scoreCanvas = PoolManager.SharedInstance.GetFromPool(3);
+        GameObject scoreCanvas = PoolManager._instance.GetFromPool(3);
         scoreCanvas.transform.position = t.position;
         scoreCanvas.SetActive(true);
         return scoreCanvas;
     }
 
-    void PlayTest(Transform parent)
+    void GetPostBlocker(Transform t)
     {
-        Transform[] children = parent.GetComponentsInChildren<Transform>();
-        foreach (Transform t in children)
-        {
-            Rigidbody2D rb = t.gameObject.AddComponent<Rigidbody2D>();
-            rb.gravityScale = 12;
-        }
-
+        GameObject postBlocker = PoolManager._instance.GetFromPool(4);
+        postBlocker.transform.position = t.position;
+        postBlocker.SetActive(true);
+        postBlocker.GetComponent<Post_Blocker>().Explode();
     }
 }

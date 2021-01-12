@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class PoolManager : MonoBehaviour
 {
-    public static PoolManager SharedInstance;
+    public static PoolManager _instance;
     [SerializeField] List<PooledObject> pooled = new List<PooledObject>();
 
     private void Awake()
     {
-        SharedInstance = this;
+        _instance = this;
         foreach (PooledObject p in pooled)
             p.InitialisePool();
     }  
