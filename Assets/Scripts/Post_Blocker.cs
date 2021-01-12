@@ -4,54 +4,70 @@ using UnityEngine;
 
 public class Post_Blocker : MonoBehaviour
 {
-    private Rigidbody[] childrensRbs;
+    private Rigidbody[] _rigidbodies;
+    private Transform[] _transforms;
+    private Vector3[] _positions;
+    private BoxCollider _collider;
 
-    private float gravityScale = 0;
     private float gravityAcceleration = -9.81f;
 
     void Awake()
     {
-        childrensRbs = GetComponentsInChildren<Rigidbody>();
-    }
+        _collider = GetComponent<BoxCollider>();
+        _rigidbodies = GetComponentsInChildren<Rigidbody>();
+        _transforms = GetComponentsInChildren<Transform>();
+        _positions = new Vector3[_transforms.Length];
 
+        for (int i = 0; i < _transforms.Length; i++)
+        {
+            _positions[i] = _transforms[i].localPosition;
+        }
+    }
     public void Explode()
     {
-        for(int i = 0; i < childrensRbs.Length; i++)
+        _collider.isTrigger = false;
+        for(int i = 0; i < _rigidbodies.Length; i++)
         {
-            int coinFlip = Random.Range(-1, 1);
-            if (coinFlip == -1)
-                Explosion_One(childrensRbs[i]);
-            else
-                Explosion_Two(childrensRbs[i]);
-            //childrensRbs[i].transform.SetParent(null);
+            StartCoroutine(ExplosionSequence(_rigidbodies[i], i));
         }
     }
-    private void FixedUpdate()
+    private IEnumerator GravitySimulation(Rigidbody rb, float gravityScale)
     {
-        if(gravityScale > 0)
+        float timer = 0;
+        while (timer < 2f) //garvity will be active for 2 seconds
         {
             Vector3 gravity = gravityAcceleration * gravityScale * Vector3.up;
-            foreach (Rigidbody rb in childrensRbs)
-                rb.AddForce(gravity, ForceMode.Acceleration);
-            Debug.Log("Test");
+            rb.AddForce(gravity, ForceMode.Acceleration);
+            timer += Time.fixedDeltaTime;
+            yield return null;
         }
     }
-
-    void Explosion_One(Rigidbody rb)
+    void StartExplosion(Rigidbody rb)
     {
-        gravityScale = Random.Range(2, 8);
-        rb.AddForce(Vector3.right * 200, ForceMode.VelocityChange);
-        rb.AddExplosionForce(100, transform.position, 50, 0, ForceMode.VelocityChange);
+        int randomForce = Random.Range(100, 400);
+        int randomExplosionForce = Random.Range(50, 150);
+        int randomRadius = Random.Range(30, 70);
+        rb.AddForce(Vector3.right * randomForce, ForceMode.VelocityChange);
+        rb.AddExplosionForce(randomExplosionForce, transform.position, randomRadius, 0, ForceMode.VelocityChange);
     }
-    private IEnumerator _Explode()
-    {
 
+    IEnumerator ExplosionSequence(Rigidbody rb, int positionIndex)
+    {
+        float gravityScale = Random.Range(2, 12);
+        StartExplosion(rb);
+        yield return StartCoroutine(GravitySimulation(rb, gravityScale));
+        rb.velocity = Vector3.zero;
+        rb.angularVelocity = Vector3.zero;
+        rb.transform.localPosition = _positions[positionIndex];
         yield return null;
+        _collider.isTrigger = true;
+        gameObject.SetActive(false);
     }
-
-    void Explosion_Two(Rigidbody rb)
+    private void OnTriggerEnter(Collider other)
     {
-        gravityScale = Random.Range(2, 8);
-        rb.AddExplosionForce(250, transform.position, 50, 0, ForceMode.VelocityChange);
+        if (other.CompareTag("Cave"))
+        {
+            Debug.Log("run");
+        }
     }
 }

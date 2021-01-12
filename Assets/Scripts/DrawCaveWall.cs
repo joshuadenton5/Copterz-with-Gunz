@@ -41,7 +41,7 @@ public class DrawCaveWall : MonoBehaviour
 
     public IEnumerator DrawRandomWall(Transform startPos)
     {
-        float wait = 0;//need to create relationship with player speed....
+        float _wait = 0;//need to create relationship with player speed....
         Vector3 start = startPos.position;
         Transform current = startPos;
         while (PlayerController._instance.gameObject.activeInHierarchy) //player is not dead 
@@ -50,7 +50,7 @@ public class DrawCaveWall : MonoBehaviour
             if (!(pixel is null)) 
             {
                 float _scaleFactor = pixel.transform.localScale.x;
-                wait = _scaleFactor / playerController.PlayerSpeed() - 0.001f;
+                _wait = _scaleFactor / playerController.PlayerSpeed();
                 int r;
                 if (current.position.y >= start.y + caveLimits)
                 {
@@ -74,7 +74,7 @@ public class DrawCaveWall : MonoBehaviour
                 Debug.Log("None left in the pool!!");
                 yield return new WaitForSeconds(1f); //waiting while the pool refills 
             }           
-            yield return new WaitForSeconds(wait);
+            yield return new WaitForSeconds(_wait);
         }
     }
 }

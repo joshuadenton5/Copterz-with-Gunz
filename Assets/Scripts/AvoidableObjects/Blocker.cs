@@ -25,34 +25,29 @@ public class Blocker : AvoidableObject
     public override void BulletInteraction(Collider2D bullet)
     {
         bullet.gameObject.SetActive(false);
-        _gameController.UpdateScoreVal(ValueFromKill);//adding to score
+        _gameController.UpdateScoreVal(ValueFromKill); //adding to score
         ProcessTextElement(transform, ValueFromKill);
 
-        GetPostBlocker(transform);
+        GameObject _postBlocker = NewObjectFromPool(transform, 4);
+        _postBlocker?.GetComponent<Post_Blocker>().Explode();
         transform.parent.gameObject.SetActive(false);
     }
 
-    public void ProcessTextElement(Transform t, float val)
+    public void ProcessTextElement(Transform t, float val) //function to show the score flash up
     {
-        GameObject _scoreCanvas = GetCanvasFromPool(t);
+        GameObject _scoreCanvas = NewObjectFromPool(t, 3);
+
         UnityEngine.UI.Text text = _scoreCanvas?.GetComponentInChildren<UnityEngine.UI.Text>();
         text.text = val.ToString();
         UIManager.FadeTextPopUp(text, .5f);
     }
-
-    GameObject GetCanvasFromPool(Transform t)
+    GameObject NewObjectFromPool(Transform t, int index)
     {
-        GameObject scoreCanvas = PoolManager._instance.GetFromPool(3);
-        scoreCanvas.transform.position = t.position;
-        scoreCanvas.SetActive(true);
-        return scoreCanvas;
+        GameObject _obj = PoolManager._instance.GetFromPool(index);
+        _obj.transform.position = t.position;
+        _obj.SetActive(true);
+        return _obj;
     }
 
-    void GetPostBlocker(Transform t)
-    {
-        GameObject postBlocker = PoolManager._instance.GetFromPool(4);
-        postBlocker.transform.position = t.position;
-        postBlocker.SetActive(true);
-        postBlocker.GetComponent<Post_Blocker>().Explode();
-    }
+    
 }
