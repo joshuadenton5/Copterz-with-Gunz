@@ -1,5 +1,4 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class Post_Blocker : MonoBehaviour
@@ -41,6 +40,7 @@ public class Post_Blocker : MonoBehaviour
             timer += Time.fixedDeltaTime;
             yield return null;
         }
+        yield return new WaitForSeconds(3f);
     }
     void StartExplosion(Rigidbody rb)
     {

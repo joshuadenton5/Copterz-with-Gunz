@@ -36,5 +36,9 @@ public class AvoidableObject : MonoBehaviour
 
     public virtual void EndCollision(){}
 
-    public virtual void PlayerCollision(Collider2D col){}
+    public virtual void PlayerCollision(Collider2D col)
+    {
+        PlayerController _playerController = col.GetComponent<PlayerController>();
+        _playerController.OnDeath();
+    }
 }

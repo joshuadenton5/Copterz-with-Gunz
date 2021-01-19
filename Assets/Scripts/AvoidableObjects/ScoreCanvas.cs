@@ -13,4 +13,9 @@ public class ScoreCanvas : AvoidableObject
     {
         transform.gameObject.SetActive(false);
     }
+
+    public override void PlayerCollision(Collider2D col)
+    {
+        Debug.Log("hello");
+    }
 }

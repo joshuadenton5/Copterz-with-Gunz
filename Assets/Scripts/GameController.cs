@@ -11,14 +11,16 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject copterPoop;
 
     private GameStatistics _currentGameStats;
+    private Vector3 start;
 
     public delegate void UpdateUITextDelegate(string newText);
     public event UpdateUITextDelegate OnScoreChanged;
+    public event UpdateUITextDelegate OnPlayerDeath;
 
     private void Start()
     {
+        start = player.transform.position;
         _currentGameStats = GetComponent<GameStatistics>();
-
         InitialiseUI();
         StartCoroutine(KeepScore());
         StartCoroutine(FollowPlayer(cam, player));
@@ -30,7 +32,7 @@ public class GameController : MonoBehaviour
     private void InitialiseUI()
     {
         OnScoreChanged?.Invoke(newText: _currentGameStats.Score.ToString());
-    }  
+    }
 
     public IEnumerator KeepScore() //score increments while the player is alive
     {
@@ -45,6 +47,13 @@ public class GameController : MonoBehaviour
     {
         _currentGameStats.IncrementScore(val);
         OnScoreChanged?.Invoke(newText: Mathf.Round(_currentGameStats.Score).ToString());
+    }
+
+
+    public void PlayerIsDead()
+    {
+        _currentGameStats.IncrementDeathVal();
+        OnPlayerDeath?.Invoke(newText: "U r Ded - Restart ? 'R'");
     }
 
     IEnumerator BlockerCounter()
@@ -70,16 +79,34 @@ public class GameController : MonoBehaviour
         blocker.SetActive(true);
     }
 
+    public void OnRestart()
+    {
+        player.gameObject.SetActive(true);
+        StartCoroutine(Move(player.transform, start, 3f));
+        StartCoroutine(FollowPlayer(cam, player));
+    }
+    IEnumerator Move(Transform start, Vector3 to, float dur)
+    {
+        float counter = 0;
+        Vector3 startPos = start.position;
+        while(counter < dur)
+        {
+            counter += Time.deltaTime;
+            start.position = Vector3.Lerp(startPos, to, counter / dur);
+            yield return null;
+        }
+    }
+
     public IEnumerator FollowPlayer(Transform toFollow, Transform player)
     {
         float distanceToPlayerX = toFollow.position.x - player.position.x;
-        float distanceTpPlayerY = toFollow.position.y - player.position.y;
+        //float distanceTpPlayerY = toFollow.position.y - player.position.y;
         while (PlayerController._instance.gameObject.activeInHierarchy)
         {
             if (player.gameObject.activeInHierarchy)
             {
                 float targetX = player.transform.position.x;
-                float targetY = player.transform.position.y;
+                //float targetY = player.transform.position.y;
 
                 Vector3 newPos = toFollow.transform.position;
                 newPos.x = targetX + distanceToPlayerX;

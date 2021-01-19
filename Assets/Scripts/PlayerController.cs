@@ -5,7 +5,7 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D rb2D;
-
+    [SerializeField] GameController _gameController;
     [SerializeField] private float speed;
     [SerializeField] private float force;
     [SerializeField] private float gravScale;
@@ -33,7 +33,7 @@ public class PlayerController : MonoBehaviour
             rb2D.AddForce(new Vector2(0, force));           
         }
         rb2D.position = Vector2.Lerp(transform.position, transform.position + Vector3.right, Time.fixedDeltaTime * speed);
-    }   
+    }
 
     IEnumerator FirstPause()
     {
@@ -47,8 +47,10 @@ public class PlayerController : MonoBehaviour
         rb2D.gravityScale = 12;
     }
 
+    public Rigidbody2D Rigidbody() { return rb2D; }
     public void OnDeath()
     {
         gameObject.SetActive(false);
+        _gameController.PlayerIsDead();
     }
 }

@@ -16,9 +16,7 @@ public class CavePixel : AvoidableObject
 
     public override void PlayerCollision(Collider2D player)
     {
-        //game over
-        PlayerController _playerController = player?.GetComponent<PlayerController>();
-        _playerController.OnDeath();
+        base.PlayerCollision(player);
     }
 
     public override void BulletInteraction(Collider2D bullet)

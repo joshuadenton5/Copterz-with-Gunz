@@ -6,23 +6,35 @@ public class UIManager : MonoBehaviour
 {
     [SerializeField] private GameController gameController;
     [SerializeField] private Text scoreText;
-    private static UIManager instance;
+    [SerializeField] private Text restartText;
+
+    private static UIManager _instnace;
+    private bool restart;
     private void Awake()
     {
-        instance = this;
+        _instnace = this;
+        restartText.text = "";
     }
     private void OnEnable()
     {
         gameController.OnScoreChanged += UpdateScore;
+        gameController.OnPlayerDeath += OnDeath;
     }
     private void OnDisable()
     {
         gameController.OnScoreChanged -= UpdateScore;
+        gameController.OnPlayerDeath -= OnDeath;
     }
 
     public void UpdateScore(string newText)
     {
         scoreText.text = "Score:"+ newText;
+    }
+
+    public void OnDeath(string newText)
+    {
+        restartText.text = newText;
+        StartCoroutine(FlashText(restartText));
     }
 
     public IEnumerator FadeTextOut(Text text, float dur)
@@ -35,8 +47,35 @@ public class UIManager : MonoBehaviour
         }
     }
 
+    IEnumerator WaitForRestart()
+    {
+        while (!restart)
+        {
+            restart = Input.GetKeyDown(KeyCode.R);
+            yield return null;
+        }
+        //Debug.Log("oi cunt");//function is called several times due to multiple collisions. 
+    }
+
+    public IEnumerator FlashText(Text text) //need to update 
+    {
+        StartCoroutine(WaitForRestart());
+
+        while (!restart)
+        {
+            yield return new WaitForSeconds(.75f);
+            if (restart)
+                break;
+            text.color = new Color(text.color.r, text.color.g, text.color.b, 0);//setting alpha to zero
+            yield return new WaitForSeconds(.75f);
+            text.color = new Color(text.color.r, text.color.g, text.color.b, 1);//setting alpha to one
+        }
+        restartText.text = "";
+        gameController.OnRestart();
+    }
+
     public static void FadeTextPopUp(Text text, float dur)
     {
-         instance.StartCoroutine(instance.FadeTextOut(text, dur));
+         _instnace.StartCoroutine(_instnace.FadeTextOut(text, dur));
     }
 }

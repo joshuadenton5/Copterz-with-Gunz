@@ -17,9 +17,7 @@ public class Blocker : AvoidableObject
 
     public override void PlayerCollision(Collider2D player)
     {
-        //game over
-        PlayerController _playerController = player.GetComponent<PlayerController>();
-        _playerController.OnDeath();
+        base.PlayerCollision(player);
     }
 
     public override void BulletInteraction(Collider2D bullet)
@@ -39,7 +37,7 @@ public class Blocker : AvoidableObject
 
         UnityEngine.UI.Text text = _scoreCanvas?.GetComponentInChildren<UnityEngine.UI.Text>();
         text.text = val.ToString();
-        UIManager.FadeTextPopUp(text, .5f);
+        UIManager.FadeTextPopUp(text, .8f);
     }
     GameObject NewObjectFromPool(Transform t, int index)
     {
@@ -47,7 +45,5 @@ public class Blocker : AvoidableObject
         _obj.transform.position = t.position;
         _obj.SetActive(true);
         return _obj;
-    }
-
-    
+    }   
 }

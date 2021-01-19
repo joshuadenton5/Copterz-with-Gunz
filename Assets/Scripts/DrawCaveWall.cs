@@ -50,7 +50,7 @@ public class DrawCaveWall : MonoBehaviour
             if (!(pixel is null)) 
             {
                 float _scaleFactor = pixel.transform.localScale.x;
-                _wait = _scaleFactor / playerController.PlayerSpeed();
+                _wait = _scaleFactor / playerController.PlayerSpeed();//need to figure out
                 int r;
                 if (current.position.y >= start.y + caveLimits)
                 {
