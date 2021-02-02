@@ -6,13 +6,8 @@ public class Turret : MonoBehaviour
 {
     [SerializeField] private float power;
     private bool fire;
-
-    void Start()
-    {
-        StartCoroutine(Fire());
-    }
    
-    IEnumerator Fire()
+    public IEnumerator Fire()
     {
         while (PlayerController._instance.gameObject.activeInHierarchy)
         {

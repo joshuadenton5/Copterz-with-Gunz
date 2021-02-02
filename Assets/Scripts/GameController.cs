@@ -1,8 +1,9 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
-public class GameController : MonoBehaviour
+public class GameController : MonoBehaviour //script could do with a clean...
 {
     [SerializeField] private Transform cam;
     [SerializeField] private Transform player;
@@ -11,27 +12,55 @@ public class GameController : MonoBehaviour
     [SerializeField] private GameObject copterPoop;
 
     private GameStatistics _currentGameStats;
-    private Vector3 start;
+    private DrawCaveWall _drawCaveWall;
+    private Turret _turret;
+    private Vector3 _playerStartPos, _backPadStartPos;
 
     public delegate void UpdateUITextDelegate(string newText);
     public event UpdateUITextDelegate OnScoreChanged;
     public event UpdateUITextDelegate OnPlayerDeath;
+    public event UpdateUITextDelegate OnCountDown;
 
     private void Start()
     {
-        start = player.transform.position;
+        player.gameObject.SetActive(false);
+        _playerStartPos = player.position;
+        _backPadStartPos = backPad.position;
         _currentGameStats = GetComponent<GameStatistics>();
+        _drawCaveWall = GetComponent<DrawCaveWall>();
+        _turret = player.GetComponentInChildren<Turret>();
+    }
+    private void OnGameStart()
+    {
+        player.gameObject.SetActive(true);
+        player.position = _playerStartPos;
+        cam.position = Vector3.zero;
+        backPad.position = _backPadStartPos;
+
         InitialiseUI();
         StartCoroutine(KeepScore());
         StartCoroutine(FollowPlayer(cam, player));
         StartCoroutine(BackPadMovement(backPad, player));
         //StartCoroutine(ExhaustFlumes(player));
         StartCoroutine(BlockerCounter());
+        _drawCaveWall.BeginDraw();
+        StartCoroutine(_turret.Fire());
+    }
+
+    public void OnExit()
+    {
+        Application.Quit();
+    }
+
+    public void StartGameButton()
+    {
+        StartCoroutine(CountDownTimer());
     }
 
     private void InitialiseUI()
     {
         OnScoreChanged?.Invoke(newText: _currentGameStats.Score.ToString());
+        OnCountDown?.Invoke(newText: "");
     }
 
     public IEnumerator KeepScore() //score increments while the player is alive
@@ -41,6 +70,19 @@ public class GameController : MonoBehaviour
             UpdateScoreVal(.5f);
             yield return null;
         }
+    }
+    public IEnumerator CountDownTimer()
+    {
+        float timer = 3;
+        while(timer > 0)
+        {
+            OnCountDown?.Invoke(newText: Mathf.Round(timer).ToString());
+            timer -= Time.deltaTime;
+            yield return null;
+        }
+        OnCountDown?.Invoke(newText: "");
+        OnGameStart();
+        yield return null;
     }
 
     public void UpdateScoreVal(float val)
@@ -53,7 +95,7 @@ public class GameController : MonoBehaviour
     public void PlayerIsDead()
     {
         _currentGameStats.IncrementDeathVal();
-        OnPlayerDeath?.Invoke(newText: "U r Ded - Restart ? 'R'");
+        OnPlayerDeath?.Invoke(newText: "U r Ded - Return::Main");
     }
 
     IEnumerator BlockerCounter()
@@ -81,10 +123,9 @@ public class GameController : MonoBehaviour
 
     public void OnRestart()
     {
-        player.gameObject.SetActive(true);
-        StartCoroutine(Move(player.transform, start, 3f));
-        StartCoroutine(FollowPlayer(cam, player));
-    }
+        SceneManager.LoadScene("Main");
+    }  
+
     IEnumerator Move(Transform start, Vector3 to, float dur)
     {
         float counter = 0;

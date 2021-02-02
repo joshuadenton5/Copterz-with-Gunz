@@ -16,6 +16,5 @@ public class ScoreCanvas : AvoidableObject
 
     public override void PlayerCollision(Collider2D col)
     {
-        Debug.Log("hello");
     }
 }

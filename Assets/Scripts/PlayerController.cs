@@ -10,20 +10,20 @@ public class PlayerController : MonoBehaviour
     [SerializeField] private float force;
     [SerializeField] private float gravScale;
     private bool _upwardsForce;
+    public static float _speed;
 
     public static PlayerController _instance;
     private void Awake()
     {
         _instance = this;
+        _speed = speed;
     }
     void Start()
     {
         rb2D = GetComponent<Rigidbody2D>();
         rb2D.gravityScale = gravScale;
-        StartCoroutine(FirstPause());
+        //StartCoroutine(FirstPause());
     }
-
-    public float PlayerSpeed() { float _speed = speed; return _speed; }  //only getting     
 
     void FixedUpdate()
     {

@@ -7,25 +7,37 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameController gameController;
     [SerializeField] private Text scoreText;
     [SerializeField] private Text restartText;
+    [SerializeField] private Text countDownText;
 
     private static UIManager _instnace;
-    private bool restart;
+    private bool toMain;
     private void Awake()
     {
         _instnace = this;
         restartText.text = "";
+        scoreText.text = "";
+    }
+    private void Start()
+    {
+        //StartCoroutine(gameController.CountDownTimer());
     }
     private void OnEnable()
     {
         gameController.OnScoreChanged += UpdateScore;
         gameController.OnPlayerDeath += OnDeath;
+        gameController.OnCountDown += UpdateTimer;
     }
     private void OnDisable()
     {
         gameController.OnScoreChanged -= UpdateScore;
         gameController.OnPlayerDeath -= OnDeath;
+        gameController.OnCountDown -= UpdateTimer;
     }
 
+    public void UpdateTimer(string _newText)
+    {
+        countDownText.text = _newText;
+    }
     public void UpdateScore(string newText)
     {
         scoreText.text = "Score:"+ newText;
@@ -49,9 +61,9 @@ public class UIManager : MonoBehaviour
 
     IEnumerator WaitForRestart()
     {
-        while (!restart)
+        while (!toMain)
         {
-            restart = Input.GetKeyDown(KeyCode.R);
+            toMain = Input.GetKeyDown(KeyCode.Return);
             yield return null;
         }
         //Debug.Log("oi cunt");//function is called several times due to multiple collisions. 
@@ -61,16 +73,17 @@ public class UIManager : MonoBehaviour
     {
         StartCoroutine(WaitForRestart());
 
-        while (!restart)
+        while (!toMain)
         {
             yield return new WaitForSeconds(.75f);
-            if (restart)
+            if (toMain)
                 break;
             text.color = new Color(text.color.r, text.color.g, text.color.b, 0);//setting alpha to zero
             yield return new WaitForSeconds(.75f);
             text.color = new Color(text.color.r, text.color.g, text.color.b, 1);//setting alpha to one
         }
         restartText.text = "";
+        //could add loading coroutine here
         gameController.OnRestart();
     }
 

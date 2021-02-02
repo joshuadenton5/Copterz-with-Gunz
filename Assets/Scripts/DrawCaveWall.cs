@@ -6,20 +6,17 @@ public class DrawCaveWall : MonoBehaviour
 {
     [SerializeField] private Transform startPositionTop;
     [SerializeField] private Transform startPositionBottom;
-    private PlayerController playerController;
     [Range(0, 10)][SerializeField] private int caveLimits = 6;
     [SerializeField] private int initalLineNum;
-
-    private void Start()
-    {
-        playerController = GameObject.FindGameObjectWithTag("Player").GetComponent<PlayerController>();
-        BeginDraw();
-    }
+    [SerializeField] private int pixelCounter;
 
     public void UpDifficulty() { caveLimits++; } //for difficulty changes
 
     public void BeginDraw()
     {
+        //StartCoroutine(DrawRandomWall(startPositionTop));
+        //StartCoroutine(DrawRandomWall(startPositionBottom));
+
         StartCoroutine(DrawStraightWall(startPositionTop, initalLineNum));
         StartCoroutine(DrawStraightWall(startPositionBottom, initalLineNum));
     }
@@ -50,7 +47,7 @@ public class DrawCaveWall : MonoBehaviour
             if (!(pixel is null)) 
             {
                 float _scaleFactor = pixel.transform.localScale.x;
-                _wait = _scaleFactor / playerController.PlayerSpeed();//need to figure out
+                _wait = _scaleFactor / PlayerController._speed;//need to figure out
                 int r;
                 if (current.position.y >= start.y + caveLimits)
                 {
@@ -68,6 +65,7 @@ public class DrawCaveWall : MonoBehaviour
                 current = pixel.transform;
                 pixel.transform.position = pos;
                 pixel.SetActive(true);
+                pixelCounter++;
             }
             else
             {

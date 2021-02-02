@@ -71,6 +71,7 @@
     <Compile Include="Assets\Scripts\AvoidableObjects\ScoreCanvas.cs" />
     <Compile Include="Assets\Scripts\PoolManager.cs" />
     <Compile Include="Assets\Scripts\DrawCaveWall.cs" />
+    <Compile Include="Assets\Scripts\Menu.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">
