@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class CavePixel : AvoidableObject
 {
+    public static bool pixelHit;
     public override void Start()
     {
         base.Start();
@@ -16,7 +17,11 @@ public class CavePixel : AvoidableObject
 
     public override void PlayerCollision(Collider2D player)
     {
-        base.PlayerCollision(player);
+        if (!pixelHit)
+        {
+            base.PlayerCollision(player);
+            pixelHit = true;
+        }
     }
 
     public override void BulletInteraction(Collider2D bullet)

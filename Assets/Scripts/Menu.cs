@@ -4,22 +4,37 @@ using UnityEngine;
 
 public class Menu : MonoBehaviour
 {
-    [SerializeField] private GameObject _panel;
-    private GameController _gameController;
+    [SerializeField] protected GameObject _panel;
+    protected GameController _gameController;
 
-    void Start()
+    protected virtual void Start()
     {
         _gameController = FindObjectOfType<GameController>();
     }
 
-    public void StartGame()
+    public virtual void PlayFromStart()
     {
         _gameController.StartGameButton();
         _panel.SetActive(false);
     }
 
+    public virtual void PauseGame()
+    {
+        _gameController.GameStopped = true;
+    }   
     public void Exit()
     {
-        _gameController.OnExit();
+        Application.Quit();
+    }
+
+    public void Resume()
+    {
+        Time.timeScale = 1;
+        _panel.SetActive(false);
+        _gameController.GameStopped = false;
+    }
+    public void Reload()
+    {
+        _gameController.OnRestart();
     }
 }

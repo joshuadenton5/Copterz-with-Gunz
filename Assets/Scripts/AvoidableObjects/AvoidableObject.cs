@@ -9,7 +9,6 @@ public class AvoidableObject : MonoBehaviour
 
     public virtual void Start()
     {
-        _gameController = GameObject.FindGameObjectWithTag("GameController")?.GetComponent<GameController>();
     }
 
     private void OnTriggerEnter2D(Collider2D collision)

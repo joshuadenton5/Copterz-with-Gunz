@@ -8,6 +8,7 @@ TagManager:
   - Cave
   - Block
   - Bullet
+  - PixelSpawn
   layers:
   - Default
   - TransparentFX

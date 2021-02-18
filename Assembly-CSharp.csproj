@@ -72,6 +72,8 @@
     <Compile Include="Assets\Scripts\PoolManager.cs" />
     <Compile Include="Assets\Scripts\DrawCaveWall.cs" />
     <Compile Include="Assets\Scripts\Menu.cs" />
+    <Compile Include="Assets\Scripts\Pause.cs" />
+    <Compile Include="Assets\Scripts\Main.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="UnityEngine">

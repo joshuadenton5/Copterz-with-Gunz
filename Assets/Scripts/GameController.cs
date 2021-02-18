@@ -5,52 +5,49 @@ using UnityEngine.SceneManagement;
 
 public class GameController : MonoBehaviour //script could do with a clean...
 {
-    [SerializeField] private Transform cam;
-    [SerializeField] private Transform player;
+    [SerializeField] private Transform _camera;
     [SerializeField] private Transform backPad;
 
+    [SerializeField] private GameObject playerPrefab;
     [SerializeField] private GameObject copterPoop;
 
     private GameStatistics _currentGameStats;
     private DrawCaveWall _drawCaveWall;
-    private Turret _turret;
     private Vector3 _playerStartPos, _backPadStartPos;
+
+    private GameObject player;
+    public bool GameStopped { get; set; }
 
     public delegate void UpdateUITextDelegate(string newText);
     public event UpdateUITextDelegate OnScoreChanged;
     public event UpdateUITextDelegate OnPlayerDeath;
     public event UpdateUITextDelegate OnCountDown;
+    public event UpdateUITextDelegate StartPauseWatch; //probably should create seperate delegate
+    public event UpdateUITextDelegate OnAmmoChange;
 
     private void Start()
     {
-        player.gameObject.SetActive(false);
-        _playerStartPos = player.position;
+        _playerStartPos = new Vector3(-88, 0, 125);
         _backPadStartPos = backPad.position;
         _currentGameStats = GetComponent<GameStatistics>();
         _drawCaveWall = GetComponent<DrawCaveWall>();
-        _turret = player.GetComponentInChildren<Turret>();
+        GameObject _player = Instantiate(playerPrefab, _playerStartPos, playerPrefab.transform.rotation);
+        player = _player;
+        player.SetActive(false);
     }
     private void OnGameStart()
     {
-        player.gameObject.SetActive(true);
-        player.position = _playerStartPos;
-        cam.position = Vector3.zero;
+        player.SetActive(true);
+        _camera.position = Vector3.zero;
         backPad.position = _backPadStartPos;
-
         InitialiseUI();
         StartCoroutine(KeepScore());
-        StartCoroutine(FollowPlayer(cam, player));
-        StartCoroutine(BackPadMovement(backPad, player));
+        StartCoroutine(FollowPlayer(_camera, player.transform));
+        StartCoroutine(BackPadMovement(backPad, player.transform));
         //StartCoroutine(ExhaustFlumes(player));
-        StartCoroutine(BlockerCounter());
-        _drawCaveWall.BeginDraw();
-        StartCoroutine(_turret.Fire());
-    }
-
-    public void OnExit()
-    {
-        Application.Quit();
-    }
+        //StartCoroutine(BlockerCounter(_player));
+        CavePixel.pixelHit = false; //prevents multiple death events firing if player collided with mulitple avoidables
+    }  
 
     public void StartGameButton()
     {
@@ -61,12 +58,16 @@ public class GameController : MonoBehaviour //script could do with a clean...
     {
         OnScoreChanged?.Invoke(newText: _currentGameStats.Score.ToString());
         OnCountDown?.Invoke(newText: "");
+        StartPauseWatch?.Invoke("");
+        OnAmmoChange?.Invoke(newText:_currentGameStats.Ammo.ToString());
     }
 
     public IEnumerator KeepScore() //score increments while the player is alive
     {
         while (PlayerController._instance.gameObject.activeInHierarchy)
         {
+            while (GameStopped)
+                yield return null;
             UpdateScoreVal(.5f);
             yield return null;
         }
@@ -81,8 +82,19 @@ public class GameController : MonoBehaviour //script could do with a clean...
             yield return null;
         }
         OnCountDown?.Invoke(newText: "");
+        _drawCaveWall.BeginDraw();
         OnGameStart();
-        yield return null;
+    }
+
+    public int GetCurrentAmmo()
+    {
+        return _currentGameStats.Ammo;
+    }
+
+    public void UpdateAmmoAmount(int _amount)
+    {
+        _currentGameStats.DecrementAmmo(_amount);
+        OnAmmoChange?.Invoke(newText: _currentGameStats.Ammo.ToString());
     }
 
     public void UpdateScoreVal(float val)
@@ -91,14 +103,13 @@ public class GameController : MonoBehaviour //script could do with a clean...
         OnScoreChanged?.Invoke(newText: Mathf.Round(_currentGameStats.Score).ToString());
     }
 
-
     public void PlayerIsDead()
     {
         _currentGameStats.IncrementDeathVal();
         OnPlayerDeath?.Invoke(newText: "U r Ded - Return::Main");
     }
 
-    IEnumerator BlockerCounter()
+    IEnumerator BlockerCounter(GameObject _player)
     {
         while (PlayerController._instance.gameObject.activeInHierarchy)
         {
@@ -108,57 +119,46 @@ public class GameController : MonoBehaviour //script could do with a clean...
                 timer -= Time.deltaTime;
                 yield return null;
             }
-            RandomlySpawnBlocker();
+            RandomlySpawnBlocker(_player);
         }
     }
 
-    public void RandomlySpawnBlocker()
+    public void RandomlySpawnBlocker(GameObject _player)//need to update 
     {
         int rand = Random.Range(-30, 30);
-        Vector3 position = new Vector3(player.transform.position.x + 200, rand, player.transform.position.z);
+        Vector3 position = new Vector3(_player.transform.position.x + 200, rand, _player.transform.position.z);
         GameObject blocker = PoolManager._instance.GetFromPool(1);
         blocker.transform.position = position;
         blocker.SetActive(true);
     }
 
-    public void OnRestart()
+    public IEnumerator OnRestart()
     {
-        SceneManager.LoadScene("Main");
-    }  
-
-    IEnumerator Move(Transform start, Vector3 to, float dur)
-    {
-        float counter = 0;
-        Vector3 startPos = start.position;
-        while(counter < dur)
+        AsyncOperation loadMain = SceneManager.LoadSceneAsync("Main");
+        while (!loadMain.isDone)
         {
-            counter += Time.deltaTime;
-            start.position = Vector3.Lerp(startPos, to, counter / dur);
             yield return null;
         }
-    }
+    }    
 
     public IEnumerator FollowPlayer(Transform toFollow, Transform player)
     {
         float distanceToPlayerX = toFollow.position.x - player.position.x;
-        //float distanceTpPlayerY = toFollow.position.y - player.position.y;
         while (PlayerController._instance.gameObject.activeInHierarchy)
         {
             if (player.gameObject.activeInHierarchy)
             {
                 float targetX = player.transform.position.x;
-                //float targetY = player.transform.position.y;
 
                 Vector3 newPos = toFollow.transform.position;
                 newPos.x = targetX + distanceToPlayerX;
-                //newPos.y = targetY + distanceTpPlayerY; - to follow in the y axis
                 toFollow.position = newPos;
             }
             yield return null;
         }
     }   
 
-    public IEnumerator ExhaustFlumes(Transform _player)
+    public IEnumerator ExhaustFlumes(Transform _player) //want a pixelated effect
     {
         Transform point = _player.Find("PoopPoint");
         while (PlayerController._instance.gameObject.activeInHierarchy)

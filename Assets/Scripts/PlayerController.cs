@@ -1,28 +1,43 @@
 using System.Collections;
-using System.Collections.Generic;
+using UnityEditor;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
     private Rigidbody2D rb2D;
-    [SerializeField] GameController _gameController;
-    [SerializeField] private float speed;
-    [SerializeField] private float force;
-    [SerializeField] private float gravScale;
+    private GameController _gameController;
+
+    [SerializeField] private float speed = 45f;
+    [SerializeField] private float force = 1000f;
+    [SerializeField] private float gravScale = 12f;
+
     private bool _upwardsForce;
     public static float _speed;
+    public bool isDead { get; set; }
 
     public static PlayerController _instance;
     private void Awake()
     {
+        rb2D = GetComponent<Rigidbody2D>();
+        rb2D.gravityScale = gravScale;
         _instance = this;
         _speed = speed;
     }
     void Start()
     {
-        rb2D = GetComponent<Rigidbody2D>();
-        rb2D.gravityScale = gravScale;
-        //StartCoroutine(FirstPause());
+        _gameController = FindObjectOfType<GameController>();
+        rb2D.velocity = new Vector2(speed, 0);
+    }
+    public IEnumerator MovePlayer()
+    {
+        Vector2 toPos = rb2D.position + Vector2.right * 3;
+        Debug.Log(toPos.x);
+        while(rb2D.position.x < toPos.x)
+        {
+            rb2D.position += Vector2.right/10f;
+            yield return null;
+        }
+        rb2D.position = new Vector2(toPos.x, rb2D.position.y);
     }
 
     void FixedUpdate()
@@ -32,25 +47,18 @@ public class PlayerController : MonoBehaviour
         {
             rb2D.AddForce(new Vector2(0, force));           
         }
-        rb2D.position = Vector2.Lerp(transform.position, transform.position + Vector3.right, Time.fixedDeltaTime * speed);
     }
-
-    IEnumerator FirstPause()
-    {
-        rb2D.gravityScale = 0;
-        float timer = 2f;
-        while(timer > 0)
-        {
-            timer -= Time.fixedDeltaTime;
-            yield return null;
-        }
-        rb2D.gravityScale = 12;
-    }
-
-    public Rigidbody2D Rigidbody() { return rb2D; }
     public void OnDeath()
     {
         gameObject.SetActive(false);
         _gameController.PlayerIsDead();
+        isDead = true;
+    }
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("PixelSpawn"))
+        {
+            //call appropiate function
+        }
     }
 }

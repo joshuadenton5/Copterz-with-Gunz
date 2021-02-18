@@ -2,12 +2,13 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Blocker : AvoidableObject
+public class Blocker : AvoidableObject //will kill player
 {
     public override void Start()
     {
         base.Start();
         ValueFromKill = 500;
+        _gameController = GameObject.FindGameObjectWithTag("GameController")?.GetComponent<GameController>();
     }
 
     public override void EndCollision()
@@ -34,7 +35,6 @@ public class Blocker : AvoidableObject
     public void ProcessTextElement(Transform t, float val) //function to show the score flash up
     {
         GameObject _scoreCanvas = NewObjectFromPool(t, 3);
-
         UnityEngine.UI.Text text = _scoreCanvas?.GetComponentInChildren<UnityEngine.UI.Text>();
         text.text = val.ToString();
         UIManager.FadeTextPopUp(text, .8f);
